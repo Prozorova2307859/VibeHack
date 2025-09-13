@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITAM-коворкинг</title>
+    <style>
+        /* Общие стили для всей страницы */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Стили для модального окна авторизации */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .auth-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Стили для логотипа в левом верхнем углу */
+        .logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        .logo h1 {
+            color: white;
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Стили для иконки личного кабинета */
+        .user-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            cursor: pointer;
+            background-color: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .user-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .user-icon .material-symbols-outlined {
+            font-size: 32px;
+            color: #667eea;
+        }
+
+        /* Главный контейнер */
+        .container {
+            display: flex;
+            max-width: 1200px;
+            margin: 100px auto 50px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            min-height: 500px;
+        }
+
+        /* Стили для секции с картинкой (левая часть) */
+        .image-section {
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            background-color: #f8f9fa;
+            overflow: hidden;
+            height: 100%;
+            position: relative;
+        }
+
+        .image-section img {
+            width: 100%;
+            height: 60%;
+            object-fit: cover;
+            object-position: top center;
+            display: block;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        /* Стили для секции с информацией (правая часть) */
+        .info-section {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .info-section h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .info-section p {
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        /* Стили для карусели мероприятий */
+        .events-carousel {
+            width: 100%;
+            margin-top: auto; /* Перемещаем карусель вниз */
+        }
+
+        .events-carousel h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #f8f9fa;
+            padding: 10px;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.3s ease;
+        }
+
+        .carousel-slide {
+            flex: 0 0 100%;
+            min-width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .event-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        .event-card h4 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .event-date {
+            color: #e74c3c;
+            font-weight: 600;
+            margin: 0 0 10px 0;
+            font-size: 0.9em;
+        }
+
+        .event-card p {
+            color: #666;
+            margin: 0;
+            line-height: 1.5;
+            font-size: 0.95em;
+        }
+
+        /* Навигация карусели */
+        .carousel-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .carousel-prev,
+        .carousel-next {
+            background: #3498db;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-prev:hover,
+        .carousel-next:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+
+        .carousel-prev .material-symbols-outlined,
+        .carousel-next .material-symbols-outlined {
+            color: white;
+            font-size: 24px;
+        }
+
+        .carousel-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background: #3498db;
+            transform: scale(1.2);
+        }
+
+        /* Кнопка призыва к действию */
+        .cta-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            margin-top: 20px;
+            align-self: flex-start;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 768px) {
+            .logo {
+                top: 15px;
+                left: 15px;
+            }
+            
+            .logo h1 {
+                font-size: 1.4em;
+            }
+            
+            .user-icon {
+                top: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .user-icon .material-symbols-outlined {
+                font-size: 24px;
+            }
+            
+            .container {
+                flex-direction: column;
+                margin: 80px 15px 30px;
+                border-radius: 15px;
+            }
+            
+            .image-section {
+                height: auto;
+            }
+            
+            .image-section img {
+                height: 250px;
+            }
+            
+            .info-section {
+                padding: 25px;
+            }
+            
+            .info-section h2 {
+                font-size: 1.6em;
+            }
+            
+            .events-carousel h3 {
+                font-size: 1.2em;
+            }
+            
+            .event-card {
+                padding: 12px;
+            }
+            
+            .carousel-prev,
+            .carousel-next {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        /* Анимация для плавного появления */
+        .container {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Скрытие контента до авторизации */
+        body.unauthorized .container,
+        body.unauthorized .logo,
+        body.unauthorized .user-icon {
+            display: none;
+        }
+
+        /* Новые стили для реализации функционала */
+        .status-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .visitors-count {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-right: 15px;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .visitors-label {
+            font-size: 1em;
+            color: #666;
+        }
+
+        .checkin-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: auto;
+        }
+
+        .checkin-button.checkin {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .checkin-button.checkout {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .checkin-button.loading {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .checkin-button:hover:not(.loading) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-menu {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .rating-info {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 3000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            max-width: 80%;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+
+        .notification.error {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .notification.success {
+            border-left: 4px solid #27ae60;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .booking-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .booking-item-info h4 {
+            margin: 0 0 5px 0;
+        }
+
+        .booking-item-info p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .booking-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .booking-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+</head>
+<body class="unauthorized">
+
+    <!-- Модальное окно авторизации -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <div class="auth-tabs">
+                <button class="tab-btn active" id="login-tab-btn">Вход</button>
+                <button class="tab-btn" id="register-tab-btn">Регистрация</button>
+            </div>
+            
+            <form id="login-form" class="auth-form active">
+                <h2>Вход в систему</h2>
+                <div class="input-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="Введите ваш email" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Пароль</label>
+                    <input type="password" id="login-password" placeholder="Введите ваш пароль" required>
+                </div>
+                <button type="submit" class="auth-button" id="login-button">
+                    <span id="login-spinner" class="spinner" style="display: none;"></span>
+                    Войти
+                </button>
+            </form>
+            
+            <form id="register-form" class="auth-form">
+                <h2>Регистрация</h2>
+                <div class="input-group">
+                    <label for="register-name">Имя</label>
+                    <input type="text" id="register-name" placeholder="Введите ваше имя" required>
+                </div>
+                <div class="input-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" placeholder="Введите ваш email" required>
+                </div>
+                <div class="input-group">
+                    <label for="register-password">Пароль</label>
+                    <input type="password" id="register-password" placeholder="Придумайте пароль" required>
+                </div>
+                <button type="submit" class="auth-button" id="register-button">
+                    <span id="register-spinner" class="spinner" style="display: none;"></span>
+                    Зарегистрироваться
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Логотип в левом верхнем углу -->
+    <div class="logo">
+        <h1>ITAM-коворкинг</h1>
+    </div>
+
+    <!-- Иконка личного кабинета -->
+    <div class="user-icon" id="user-icon">
+        <span class="material-symbols-outlined">person</span>
+    </div>
+
+    <!-- Главный контейнер -->
+    <div class="container">
+        <!-- Левая часть с картинкой и каруселью мероприятий -->
+        <div class="image-section">
+            <img src="коворк.jpg" alt="Коворкинг пространство ITAM">
+            
+            <div class="events-carousel">
+                <h3>Ближайшие мероприятия</h3>
+                <div class="carousel-container">
+                    <div class="carousel-track" id="carousel-track">
+                        <div class="carousel-slide">
+                            <div class="event-card">
+                                <h4>Встреча IT-сообщества</h4>
+                                <p class="event-date">15 октября, 19:00</p>
+                                <p>Обсуждение современных технологий и нетворкинг</p>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <div class="event-card">
+                                <h4>Мастер-класс по веб-разработке</h4>
+                                <p class="event-date">20 октября, 18:00</p>
+                                <p>Практическое занятие по созданию современных веб-приложений</p>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <div class="event-card">
+                                <h4>Дискуссия о будущем AI</h4>
+                                <p class="event-date">25 октября, 17:00</p>
+                                <p>Приглашенные эксперты обсудят тенденции искусственного интеллекта</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-nav">
+                    <button class="carousel-prev" id="carousel-prev">
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <div class="carousel-dots" id="carousel-dots"></div>
+                    <button class="carousel-next" id="carousel-next">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая часть с информацией -->
+        <div class="info-section">
+            <h2>Добро пожаловать в ITAM-коворкинг!</h2>
+            <p>Современное пространство в Г-513 для работы и творчества. У нас есть все необходимое: высокоскоростной интернет, удобные рабочие места, зоны отдыха.</p>
+            
+            <div class="status-container">
+                <div class="visitors-count" id="visitors-count">?</div>
+                <div class="visitors-label">людей сейчас в коворкинге</div>
+                <button class="checkin-button checkin" id="checkin-button">Я пришел!</button>
+            </div>
+            
+            <div class="rating-info">
+                Ваш текущий рейтинг: <span id="user-rating">0</span> баллов
+            </div>
+            
+            <p>Присоединяйтесь к нашему сообществу. Участвуйте в мероприятиях, знакомьтесь с интересными людьми и развивайте свои проекты в комфортной атмосфере.</p>
+            
+            <button class="cta-button" id="book-equipment">Забронировать оборудование</button>
+        </div>
+    </div>
+
+    <!-- Навигационное меню -->
+    <div class="nav-menu">
+        <button class="nav-button" id="booking-button">Бронирование</button>
+        <button class="nav-button" id="events-button">Мероприятия</button>
+        <button class="nav-button" id="donate-button">Поддержка проекта</button>
+    </div>
+
+    <!-- Уведомление -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Модальное окно бронирования -->
+    <div id="booking-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Бронирование оборудования</h2>
+            <div class="tabs">
+                <div class="tab active" data-tab="available">Доступное</div>
+                <div class="tab" data-tab="my-bookings">Мои бронирования</div>
+            </div>
+            
+            <div class="tab-content active" id="available-tab">
+                <div class="booking-item">
+                    <div class="booking-item-info">
+                        <h4>Рабочий стол</h4>
+                    </div>
+                    <button class="booking-button" data-id="1">Забронировать</button>
+                </div>
+                
+                <div class="booking-item">
+                    <div class="booking-item-info">
+                        <h4>Зона отдыха</h4>
+                        <p>Идеально для небольших встреч и обсуждений</p>
+                    </div>
+                    <button class="booking-button" data-id="2">Забронировать</button>
+                </div>
+                
+                <div class="booking-item">
+                    <div class="booking-item-info">
+                        <h4>Монитор</h4>
+                        <p>Высококачественный монитор для детальной работы</p>
+                    </div>
+                    <button class="booking-button" data-id="3">Забронировать</button>
+                </div>
+                
+                <div class="booking-item">
+                    <div class="booking-item-info">
+                        <h4>Приставка</h4>
+                    </div>
+                    <button class="booking-button" data-id="4">Забронировать</button>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="my-bookings-tab">
+                <p id="no-bookings-message">У вас пока нет активных бронирований</p>
+                <div id="bookings-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Имитация данных сервера
+        const serverData = {
+            users: [
+                { id: 1, email: 'user@example.com', password: 'password', name: 'Тестовый Пользователь', rating: 100, isInCoworking: false }
+            ],
+            visitorsCount: 10,
+            bookings: []
+        };
+
+        // Состояние приложения
+        let appState = {
+            currentUser: null,
+            token: null,
+            visitorsCount: serverData.visitorsCount,
+            currentSlide: 0,
+            bookings: []
+        };
+
+        // DOM элементы
+        const elements = {
+            authModal: document.getElementById('auth-modal'),
+            loginForm: document.getElementById('login-form'),
+            registerForm: document.getElementById('register-form'),
+            loginButton: document.getElementById('login-button'),
+            registerButton: document.getElementById('register-button'),
+            loginSpinner: document.getElementById('login-spinner'),
+            registerSpinner: document.getElementById('register-spinner'),
+            visitorsCount: document.getElementById('visitors-count'),
+            checkinButton: document.getElementById('checkin-button'),
+            userRating: document.getElementById('user-rating'),
+            bookEquipment: document.getElementById('book-equipment'),
+            bookingModal: document.getElementById('booking-modal'),
+            notification: document.getElementById('notification'),
+            carouselTrack: document.getElementById('carousel-track'),
+            carouselPrev: document.getElementById('carousel-prev'),
+            carouselNext: document.getElementById('carousel-next'),
+            carouselDots: document.getElementById('carousel-dots'),
+            loginTabBtn: document.getElementById('login-tab-btn'),
+            registerTabBtn: document.getElementById('register-tab-btn'),
+            userIcon: document.getElementById('user-icon'),
+            bookingButton: document.getElementById('booking-button'),
+            availableTab: document.getElementById('available-tab'),
+            myBookingsTab: document.getElementById('my-bookings-tab'),
+            noBookingsMessage: document.getElementById('no-bookings-message'),
+            bookingsList: document.getElementById('bookings-list')
+        };
+
+        // Инициализация приложения
+        function initApp() {
+            // Проверяем, есть ли токен в localStorage
+            const token = localStorage.getItem('token');
+            if (token) {
+                // Проверяем валидность токена (имитация)
+                const user = serverData.users.find(u => u.id === parseInt(token));
+                if (user) {
+                    appState.currentUser = user;
+                    appState.token = token;
+                    handleSuccessfulAuth();
+                } else {
+                    localStorage.removeItem('token');
+                }
+            }
+
+            // Инициализация карусели
+            initCarousel();
+            
+            // Назначение обработчиков событий
+            setupEventListeners();
+        }
+
+        // Инициализация карусели мероприятий
+        function initCarousel() {
+            const slides = document.querySelectorAll('.carousel-slide');
+            const dotsContainer = elements.carouselDots;
+            
+            // Создаем точки навигации
+            slides.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.classList.add('carousel-dot');
+                if (i === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => {
+                    goToSlide(i);
+                });
+                dotsContainer.appendChild(dot);
+            });
+            
+            // Обновляем отображение карусели
+            updateCarousel();
+        }
+
+        // Переход к определенному слайду
+        function goToSlide(index) {
+            const slides = document.querySelectorAll('.carousel-slide');
+            const dots = document.querySelectorAll('.carousel-dot');
+            
+            if (index >= slides.length) index = 0;
+            if (index < 0) index = slides.length - 1;
+            
+            appState.currentSlide = index;
+            updateCarousel();
+        }
+
+        // Обновление отображения карусели
+        function updateCarousel() {
+            const track = elements.carouselTrack;
+            const dots = document.querySelectorAll('.carousel-dot');
+            
+            track.style.transform = `translateX(-${appState.currentSlide * 100}%)`;
+            
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === appState.currentSlide);
+            });
+        }
+
+        // Назначение обработчиков событий
+        function setupEventListeners() {
+            // Навигация карусели
+            elements.carouselPrev.addEventListener('click', () => goToSlide(appState.currentSlide - 1));
+            elements.carouselNext.addEventListener('click', () => goToSlide(appState.currentSlide + 1));
+            
+            // Переключение между вкладками авторизации
+            elements.loginTabBtn.addEventListener('click', () => switchAuthTab('login'));
+            elements.registerTabBtn.addEventListener('click', () => switchAuthTab('register'));
+            
+            // Формы авторизации
+            elements.loginForm.addEventListener('submit', handleLogin);
+            elements.registerForm.addEventListener('submit', handleRegister);
+            
+            // Кнопка входа/выхода
+            elements.checkinButton.addEventListener('click', handleCheckin);
+            
+            // Кнопка бронирования оборудования
+            elements.bookEquipment.addEventListener('click', handleBookEquipment);
+            
+            // Кнопка закрытия модального окна
+            elements.bookingModal.addEventListener('click', (e) => {
+                if (e.target === elements.bookingModal) {
+                    elements.bookingModal.style.display = 'none';
+                }
+            });
+            
+            // Навигационные кнопки
+            elements.bookingButton.addEventListener('click', () => {
+                handleBookEquipment();
+            });
+            
+            elements.userIcon.addEventListener('click', showUserProfile);
+            
+            // Табы в модальном окне бронирования
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.getAttribute('data-tab');
+                    switchBookingTab(tabName);
+                });
+            });
+            
+            // Кнопки бронирования
+            document.querySelectorAll('.booking-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const equipmentId = e.target.getAttribute('data-id');
+                    bookEquipment(equipmentId);
+                });
+            });
+        }
+
+        // Переключение между вкладками авторизации
+        function switchAuthTab(tab) {
+            if (tab === 'login') {
+                elements.loginTabBtn.classList.add('active');
+                elements.registerTabBtn.classList.remove('active');
+                elements.loginForm.classList.add('active');
+                elements.registerForm.classList.remove('active');
+            } else {
+                elements.loginTabBtn.classList.remove('active');
+                elements.registerTabBtn.classList.add('active');
+                elements.loginForm.classList.remove('active');
+                elements.registerForm.classList.add('active');
+            }
+        }
+
+        // Переключение между вкладками бронирования
+        function switchBookingTab(tabName) {
+            // Обновляем активные табы
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.toggle('active', tab.getAttribute('data-tab') === tabName);
+            });
+            
+            // Показываем соответствующий контент
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.toggle('active', content.id === `${tabName}-tab`);
+            });
+            
+            // Если открыта вкладка "Мои бронирования", обновляем список
+            if (tabName === 'my-bookings') {
+                updateBookingsList();
+            }
+        }
+
+        // Обработка входа
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Показываем спиннер
+            elements.loginSpinner.style.display = 'inline-block';
+            elements.loginButton.disabled = true;
+            
+            // Имитация запроса к серверу
+            setTimeout(() => {
+                const user = serverData.users.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    // Успешная авторизация
+                    appState.currentUser = user;
+                    appState.token = user.id.toString();
+                    localStorage.setItem('token', appState.token);
+                    
+                    handleSuccessfulAuth();
+                    showNotification('Вы успешно авторизовались!', 'success');
+                } else {
+                    // Ошибка авторизации
+                    showNotification('Неверный email или пароль', 'error');
+                }
+                
+                // Скрываем спиннер
+                elements.loginSpinner.style.display = 'none';
+                elements.loginButton.disabled = false;
+            }, 1000);
+        }
+
+        // Обработка регистрации
+        function handleRegister(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            
+            // Показываем спиннер
+            elements.registerSpinner.style.display = 'inline-block';
+            elements.registerButton.disabled = true;
+            
+            // Имитация запроса к серверу
+            setTimeout(() => {
+                // Проверяем, нет ли уже пользователя с таким email
+                const existingUser = serverData.users.find(u => u.email === email);
+                
+                if (existingUser) {
+                    showNotification('Пользователь с таким email уже существует', 'error');
+                } else {
+                    // Создаем нового пользователя
+                    const newUser = {
+                        id: serverData.users.length + 1,
+                        email,
+                        password,
+                        name,
+                        rating: 0,
+                        isInCoworking: false
+                    };
+                    
+                    serverData.users.push(newUser);
+                    appState.currentUser = newUser;
+                    appState.token = newUser.id.toString();
+                    localStorage.setItem('token', appState.token);
+                    
+                    handleSuccessfulAuth();
+                    showNotification('Регистрация прошла успешно!', 'success');
+                    switchAuthTab('login');
+                }
+                
+                // Скрываем спиннер
+                elements.registerSpinner.style.display = 'none';
+                elements.registerButton.disabled = false;
+            }, 1000);
+        }
+
+        // Действия после успешной авторизации
+        function handleSuccessfulAuth() {
+            // Скрываем модальное окно авторизации
+            elements.authModal.style.display = 'none';
+            
+            // Показываем основной контент
+            document.body.classList.remove('unauthorized');
+            
+            // Загружаем данные о пользователе
+            loadUserData();
+            
+            // Загружаем актуальные данные
+            updateStatus();
+        }
+
+        // Загрузка данных пользователя
+        function loadUserData() {
+            if (appState.currentUser) {
+                elements.userRating.textContent = appState.currentUser.rating;
+                
+                // Обновляем текст кнопки в зависимости от статуса
+                if (appState.currentUser.isInCoworking) {
+                    elements.checkinButton.textContent = 'Я ушел!';
+                    elements.checkinButton.classList.remove('checkin');
+                    elements.checkinButton.classList.add('checkout');
+                } else {
+                    elements.checkinButton.textContent = 'Я пришел!';
+                    elements.checkinButton.classList.remove('checkout');
+                    elements.checkinButton.classList.add('checkin');
+                }
+            }
+        }
+
+        // Обновление статуса (количество посетителей)
+        function updateStatus() {
+            // Имитация запроса GET /status
+            elements.visitorsCount.textContent = appState.visitorsCount;
+        }
+
+        // Обработка входа/выхода
+        function handleCheckin() {
+            // Блокируем кнопку на время запроса
+            const originalText = elements.checkinButton.textContent;
+            elements.checkinButton.textContent = 'Отмечаем...';
+            elements.checkinButton.classList.add('loading');
+            elements.checkinButton.disabled = true;
+            
+            // Имитация запроса POST /checkin
+            setTimeout(() => {
+                if (appState.currentUser) {
+                    if (appState.currentUser.isInCoworking) {
+                        // Пользователь уходит
+                        appState.visitorsCount--;
+                        appState.currentUser.isInCoworking = false;
+                        
+                        // Пересчет рейтинга (имитация)
+                        const sessionRating = Math.floor(Math.random() * 10) + 5; // Случайное количество баллов за сессию
+                        appState.currentUser.rating += sessionRating;
+                        
+                        elements.checkinButton.textContent = 'Я пришел!';
+                        elements.checkinButton.classList.remove('checkout');
+                        elements.checkinButton.classList.add('checkin');
+                        
+                        showNotification(`Вы провели в коворкинге ${Math.floor(Math.random() * 5) + 1} часов. Начислено ${sessionRating} баллов рейтинга.`, 'success');
+                    } else {
+                        // Пользователь пришел
+                        appState.visitorsCount++;
+                        appState.currentUser.isInCoworking = true;
+                        
+                        elements.checkinButton.textContent = 'Я ушел!';
+                        elements.checkinButton.classList.remove('checkin');
+                        elements.checkinButton.classList.add('checkout');
+                        
+                        showNotification('Добро пожаловать в коворкинг!', 'success');
+                    }
+                    
+                    // Обновляем интерфейс
+                    elements.visitorsCount.textContent = appState.visitorsCount;
+                    elements.userRating.textContent = appState.currentUser.rating;
+                }
+                
+                // Разблокируем кнопку
+                elements.checkinButton.classList.remove('loading');
+                elements.checkinButton.disabled = false;
+            }, 1000);
+        }
+
+        // Обработка бронирования оборудования
+        function handleBookEquipment() {
+            if (!appState.currentUser) {
+                showNotification('Для бронирования необходимо авторизоваться', 'error');
+                return;
+            }
+            
+            // Проверка рейтинга
+            if (appState.currentUser.rating < 50) {
+                showNotification('Недостаточно рейтинга для бронирования. Повышайте рейтинг, активнее посещая коворкинг.', 'error');
+                return;
+            }
+            
+            // Показываем модальное окно бронирования
+            elements.bookingModal.style.display = 'flex';
+            switchBookingTab('available');
+        }
+
+        // Бронирование конкретного оборудования
+        function bookEquipment(equipmentId) {
+            // Создаем бронирование
+            const booking = {
+                id: Date.now(),
+                equipmentId: parseInt(equipmentId),
+                userId: appState.currentUser.id,
+                date: new Date().toLocaleDateString(),
+                status: 'active'
+            };
+            
+            // Добавляем в список бронирований
+            appState.bookings.push(booking);
+            serverData.bookings.push(booking);
+            
+            showNotification('Оборудование успешно забронировано!', 'success');
+            
+            // Переключаемся на вкладку с моими бронированиями
+            switchBookingTab('my-bookings');
+        }
+
+        // Обновление списка бронирований
+        function updateBookingsList() {
+            const userBookings = appState.bookings.filter(b => b.userId === appState.currentUser.id && b.status === 'active');
+            
+            if (userBookings.length === 0) {
+                elements.noBookingsMessage.style.display = 'block';
+                elements.bookingsList.innerHTML = '';
+            } else {
+                elements.noBookingsMessage.style.display = 'none';
+                
+                let html = '';
+                userBookings.forEach(booking => {
+                    let equipmentName = '';
+                    switch (booking.equipmentId) {
+                        case 1: equipmentName = 'Рабочий стол'; break;
+                        case 2: equipmentName = 'Зона отдыха'; break;
+                        case 3: equipmentName = 'Моритор'; break;
+                        case 4: equipmentName = 'Приставка'; break;
+                        
+                    }
+                    
+                    html += `
+                        <div class="booking-item">
+                            <div class="booking-item-info">
+                                <h4>${equipmentName}</h4>
+                                <p>Забронировано на: ${booking.date}</p>
+                            </div>
+                            <button class="booking-button cancel-button" data-id="${booking.id}">Отменить</button>
+                        </div>
+                    `;
+                });
+                
+                elements.bookingsList.innerHTML = html;
+                
+                // Назначаем обработчики для кнопок отмены
+                document.querySelectorAll('.cancel-button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const bookingId = parseInt(e.target.getAttribute('data-id'));
+                        cancelBooking(bookingId);
+                    });
+                });
+            }
+        }
+
+        // Отмена бронирования
+        function cancelBooking(bookingId) {
+            const bookingIndex = appState.bookings.findIndex(b => b.id === bookingId);
+            if (bookingIndex !== -1) {
+                appState.bookings[bookingIndex].status = 'cancelled';
+                
+                // Также обновляем на "сервере"
+                const serverBookingIndex = serverData.bookings.findIndex(b => b.id === bookingId);
+                if (serverBookingIndex !== -1) {
+                    serverData.bookings[serverBookingIndex].status = 'cancelled';
+                }
+                
+                showNotification('Бронирование отменено', 'success');
+                updateBookingsList();
+            }
+        }
+
+        // Показ профиля пользователя
+        function showUserProfile() {
+            if (appState.currentUser) {
+                alert(`Профиль пользователя:\nИмя: ${appState.currentUser.name}\nEmail: ${appState.currentUser.email}\nРейтинг: ${appState.currentUser.rating} баллов`);
+            } else {
+                showNotification('Для просмотра профиля необходимо авторизоваться', 'error');
+            }
+        }
+
+        // Показ уведомления
+        function showNotification(message, type) {
+            elements.notification.textContent = message;
+            elements.notification.className = 'notification ' + type;
+            elements.notification.classList.add('show');
+            
+            setTimeout(() => {
+                elements.notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Инициализация приложения после загрузки DOM
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+    <script>
+// В функции showUserProfile замените alert на модальное окно с кнопкой выхода
+function showUserProfile() {
+    if (appState.currentUser) {
+        // Создаем модальное окно профиля
+        const profileModal = document.createElement('div');
+        profileModal.className = 'modal';
+        profileModal.style.display = 'flex';
+        profileModal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px;">
+                <h2>Профиль пользователя</h2>
+                <div style="margin-bottom: 20px;">
+                    <p><strong>Имя:</strong> ${appState.currentUser.name}</p>
+                    <p><strong>Email:</strong> ${appState.currentUser.email}</p>
+                    <p><strong>Рейтинг:</strong> ${appState.currentUser.rating} баллов</p>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <button class="auth-button" id="close-profile" style="width: 48%; background: #95a5a6;">
+                        Закрыть
+                    </button>
+                    <button class="auth-button" id="logout-profile" style="width: 48%; background: #e74c3c;">
+                        Выйти
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(profileModal);
+        
+        // Обработчики для кнопок
+        document.getElementById('close-profile').addEventListener('click', () => {
+            document.body.removeChild(profileModal);
+        });
+        
+        document.getElementById('logout-profile').addEventListener('click', () => {
+            // Выход из системы
+            localStorage.removeItem('token');
+            appState.currentUser = null;
+            document.body.removeChild(profileModal);
+            
+            // Показываем окно авторизации
+            elements.authModal.style.display = 'flex';
+            document.body.classList.add('unauthorized');
+            
+            showNotification('Вы вышли из системы', 'success');
+        });
+        
+        // Закрытие по клику вне модального окна
+        profileModal.addEventListener('click', (e) => {
+            if (e.target === profileModal) {
+                document.body.removeChild(profileModal);
+            }
+        });
+    } else {
+        showNotification('Для просмотра профиля необходимо авторизоваться', 'error');
+    }
+}
+</script>
+<!-- Модальное окно для донатов -->
+<div id="donate-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h2>Поддержать проект</h2>
+        <p>Ваша поддержка помогает развивать коворкинг и организовывать новые мероприятия!</p>
+        
+        <div class="donate-options">
+            <div class="donate-option" data-amount="100">
+                <h4>100 ₽</h4>
+                <p>Маленькая помощь</p>
+            </div>
+            <div class="donate-option" data-amount="500">
+                <h4>500 ₽</h4>
+                <p>Значительный вклад</p>
+            </div>
+            <div class="donate-option" data-amount="1000">
+                <h4>1000 ₽</h4>
+                <p>Большая поддержка</p>
+            </div>
+            <div class="donate-option custom-amount">
+                <h4>Другая сумма</h4>
+                <input type="number" id="custom-amount" placeholder="Введите сумму" min="10">
+            </div>
+        </div>
+        
+        <div class="payment-methods">
+            <h4>Способ оплаты:</h4>
+            <label>
+                <input type="radio" name="payment-method" value="card" checked>
+                Банковская карта
+            </label>
+            <label>
+                <input type="radio" name="payment-method" value="yoomoney">
+                ЮMoney
+            </label>
+            <label>
+                <input type="radio" name="payment-method" value="crypto">
+                Криптовалюта
+            </label>
+        </div>
+        
+        <button class="auth-button" id="process-donation" style="margin-top: 20px;">
+            Поддержать
+        </button>
+        
+        <button class="auth-button" id="close-donate" style="background: #95a5a6; margin-top: 10px;">
+            Отмена
+        </button>
+    </div>
+</div>
+</body>
+</html>
